@@ -6,7 +6,7 @@
 - **Key Pair**: transaction
 - **Security Group**: Ports 8000-8010 (TCP), Port 22 (SSH)
 
-## Your EC2 Instances
+## EC2 Instances
 ```
 Coordinator: 3.95.212.5
 Participant B: 184.73.13.182
@@ -111,7 +111,6 @@ python3 coordinator_server.py --id COORD --port 8000 \
 
 ## RUNNING TEST SCENARIOS
 
-### Test 1: Successful 2PC Transaction (Screenshot #1)
 
 **From coordinator terminal (Terminal 1), open a new SSH session:**
 ```bash
@@ -132,11 +131,9 @@ python3 client_http.py --coordinator localhost:8000 --tx TX001 --op "x=-10" --pr
 [Coordinator] TX001 COMMITTED
 ```
 
-**📸 TAKE SCREENSHOT #1** - Shows successful 2PC
-
 ---
 
-### Test 2: Failed Transaction - Participant Timeout (Screenshot #2)
+### Test 2: Failed Transaction - Participant Timeout 
 
 **Stop Participant C (Ctrl+C in Terminal 3)**
 
@@ -149,13 +146,13 @@ python3 client_http.py --coordinator localhost:8000 --tx TX002 --op "x=-10" --pr
 - Coordinator times out waiting for Participant C
 - Transaction ABORTS
 
-**📸 TAKE SCREENSHOT #2** - Shows timeout and abort
+
 
 **Restart Participant C after test**
 
 ---
 
-### Test 3: Coordinator Crash - Blocking (Screenshot #3)
+### Test 3: Coordinator Crash - Blocking
 
 This demonstrates the **blocking problem** in 2PC.
 
@@ -173,11 +170,11 @@ This demonstrates the **blocking problem** in 2PC.
 3. Kill coordinator during the sleep
 4. Check participants - they're blocked!
 
-**📸 TAKE SCREENSHOT #3** - Participants stuck in READY state
+
 
 ---
 
-### Test 4: Successful 3PC Transaction (Screenshot #4)
+### Test 4: Successful 3PC Transaction
 
 **Restart coordinator with 3PC:**
 ```bash
@@ -200,132 +197,6 @@ python3 client_http.py --coordinator localhost:8000 --tx TX003 --op "x=-10" --pr
 [Coordinator] TX003 COMMITTED (3PC)
 ```
 
-**📸 TAKE SCREENSHOT #4** - Shows 3PC three phases
+
 
 ---
-
-### Test 5: 3PC Non-Blocking (Screenshot #5)
-
-**Key difference:** In 3PC, if coordinator fails after PRE-COMMIT, participants can complete the transaction.
-
-This is THEORETICAL in our implementation, but you can explain it in your report.
-
-**📸 TAKE SCREENSHOT #5** - AWS Console showing 3 running instances
-
----
-
-## SCREENSHOTS FOR REPORT
-
-1. **Screenshot #1**: Successful 2PC transaction with all phases
-2. **Screenshot #2**: Failed transaction due to participant timeout
-3. **Screenshot #3**: Blocking behavior when coordinator crashes
-4. **Screenshot #4**: Successful 3PC showing all three phases
-5. **Screenshot #5**: AWS EC2 console showing 3 running instances
-6. **Screenshot #6**: Security group inbound rules
-
----
-
-## DELIVERABLES CHECKLIST
-
-### ✅ Code Repository
-- [x] coordinator_server.py
-- [x] participant.py
-- [x] client_http.py
-- [x] README.md (this file)
-
-### ✅ Report Sections
-1. **Introduction** - Brief overview of 2PC and 3PC
-2. **System Architecture** - Diagram of your 3 nodes
-3. **2PC Implementation** - Screenshots of successful & failed transactions
-4. **Failure Scenarios** - Blocking demonstration
-5. **3PC Implementation** - Screenshots of 3-phase execution
-6. **Comparison** - 2PC vs 3PC table
-7. **Conclusion** - What you learned
-
----
-
-## TROUBLESHOOTING
-
-**Problem: Cannot connect to participant**
-- Check security group allows ports 8000-8010
-- Verify participant is running: `ps aux | grep participant`
-- Check firewall: `sudo ufw status`
-
-**Problem: Connection timeout**
-- Use PUBLIC IPs in coordinator participants list
-- Verify all instances are in same region/VPC
-- Test connectivity: `telnet <ip> <port>`
-
-**Problem: Module not found**
-- Install dependencies: `pip3 install flask requests`
-- Use python3 (not python)
-
----
-
-## CLEANUP
-
-After completing the lab:
-```bash
-# Stop all processes
-pkill -f python3
-
-# Remove files (optional)
-rm -rf ~/distributed-tx
-```
-
----
-
-## EVALUATION RUBRIC MAPPING
-
-| Criterion | Points | How to Score |
-|-----------|--------|--------------|
-| Correct 2PC implementation | 30 | Tests 1-2 working |
-| Failure scenario demonstrated | 20 | Test 3 (blocking) |
-| Clear logs and states | 10 | Screenshots show logs |
-| Correct 3PC implementation | 30 | Test 4 working |
-| Explanation of limitations | 10 | Report comparison section |
-
-**Total: 100 points**
-
----
-
-## QUICK REFERENCE COMMANDS
-
-```bash
-# Start Participant
-python3 participant.py --id <ID> --port <PORT>
-
-# Start Coordinator (2PC)
-python3 coordinator_server.py --id COORD --port 8000 \
-  --participants B:IP:8001,C:IP:8002 --protocol 2PC
-
-# Start Coordinator (3PC)
-python3 coordinator_server.py --id COORD --port 8000 \
-  --participants B:IP:8001,C:IP:8002 --protocol 3PC
-
-# Trigger Transaction
-python3 client_http.py --coordinator localhost:8000 \
-  --tx TX001 --op "x=-10" --protocol 2PC
-
-# Check if process is running
-ps aux | grep python3
-
-# Kill all Python processes
-pkill -f python3
-```
-
----
-
-## PROTOCOL COMPARISON
-
-| Feature | 2PC | 3PC |
-|---------|-----|-----|
-| Phases | 2 | 3 |
-| Blocking | Yes (coordinator crash) | Reduced |
-| Messages | 3n | 5n |
-| Complexity | Lower | Higher |
-| Fault Tolerance | Lower | Higher |
-
----
-
-Good luck with your lab! 🚀
